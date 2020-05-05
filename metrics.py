@@ -96,7 +96,7 @@ def get_fwiou(pred: np.ndarray, mask: np.ndarray) -> float:
 def get_dice(pred: np.ndarray, mask: np.ndarray) -> float:
     """
     Dice score
-    From now, it is suited to binary segmentation, where
+    From now, it is suited to binary segmentation, where 0 is background and 1 is foreground
     """
     intersection = np.count_nonzero(mask[pred == 1] == 1)
     area_sum = np.count_nonzero(mask == 1) + np.count_nonzero(pred == 1)
