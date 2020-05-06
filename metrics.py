@@ -18,6 +18,24 @@ from typing import Tuple
 # class of segmentation
 
 
+def get_total_evaluation(pred: np.ndarray, mask: np.ndarray) -> Tuple:
+    """
+         Get whole evaluation of all metrics
+         Return Tuple, (value_list, name_list)
+    """
+    metric_values = [get_pixel_accuracy(pred, mask), get_mean_accuracy(pred, mask),
+                     get_iou(pred, mask), get_fwiou(pred, mask), get_dice(pred, mask),
+                     # get_figure_of_merit(pred, mask),
+                     get_ri(pred, mask), get_ari(pred, mask), get_vi(pred, mask),
+                     get_cardinality_difference(pred, mask), get_map_2018kdsb(pred, mask)]
+    metric_names  = ["pixel_accuracy", "mean_accuracy",
+                     "iou", "fwiou", "dice",
+                     # "figure_of_merit",
+                     "ri", "ari", "vi",
+                     "cardinality_difference", "map"]
+    return metric_values, metric_names
+
+
 # ************** 基于像素的评估 Pixel based evaluation **************
 # pixel accuracy, mean accuracy
 def get_pixel_accuracy(pred: np.ndarray, mask: np.ndarray) -> float:
@@ -106,19 +124,19 @@ def get_dice(pred: np.ndarray, mask: np.ndarray) -> float:
 
 # ************** 基于边缘的评估 boundary based evaluation **************
 # figure of merit
-def get_figure_of_merit(pred: np.ndarray, mask: np.ndarray, const_index: float = 0.1) -> float:
+def get_figure_of_merit(pred: np.ndarray, mask: np.ndarray, boundary_value: int = 0, const_index: float = 0.1) -> float:
     """
     Referenced by:
     Abdou I E, Pratt W K. Quantitative design and evaluation of enhancement thresholding edge detectors[J].
     Proceedings of the IEEE, 1979, 67(5): 753-763
     """
-    num_pred = np.count_nonzero(pred[pred == 255])
-    num_mask = np.count_nonzero(mask[mask == 255])
+    num_pred = np.count_nonzero(pred[pred == boundary_value])
+    num_mask = np.count_nonzero(mask[mask == boundary_value])
     num_max = num_pred if num_pred > num_mask else num_mask
     temp = 0.0
     for index_x in range(0, pred.shape[0]):
         for index_y in range(0, pred.shape[1]):
-            if pred[index_x, index_y] == 255:
+            if pred[index_x, index_y] == boundary_value:
                 distance = get_dis_from_mask_point(
                     mask, index_x, index_y)
                 temp = temp + 1 / (1 + const_index * pow(distance, 2))
@@ -126,7 +144,7 @@ def get_figure_of_merit(pred: np.ndarray, mask: np.ndarray, const_index: float =
     return f_score
 
 
-def get_dis_from_mask_point(mask, index_x, index_y, neighbor_length=60):
+def get_dis_from_mask_point(mask: np.ndarray, index_x: int, index_y: int, boundary_value: int = 0, neighbor_length: int = 60):
     """
     Calculation the distance between the boundary point(pred) and its nearest boundary point(mask)
     """
@@ -148,7 +166,7 @@ def get_dis_from_mask_point(mask, index_x, index_y, neighbor_length=60):
         region_end_col = index_y + neighbor_length
         # Get the corrdinate of mask in neighbor region
         # becuase the corrdinate will be chaneged after slice operation, we add it manually
-    x, y = np.where(mask[region_start_row: region_end_row, region_start_col: region_end_col] == 255)
+    x, y = np.where(mask[region_start_row: region_end_row, region_start_col: region_end_col] == boundary_value)
 
     min_distance = np.amin(
         np.linalg.norm(np.array([x + region_start_row, y + region_start_col]) - np.array([[index_x], [index_y]]),
@@ -180,7 +198,7 @@ def get_ari(pred: np.ndarray, mask: np.ndarray, bg_value: int = 0) -> float:
     return value
 
 
-def get_vi(pred: np.ndarray, mask: np.ndarray, bg_value: int = 0, method: int = 0) -> Tuple:
+def get_vi(pred: np.ndarray, mask: np.ndarray, bg_value: int = 0, method: int = 1) -> Tuple:
     """
     Referenced by:
     Marina Meilă (2007), Comparing clusterings—an information based distance,
@@ -222,7 +240,7 @@ def get_cardinality_difference(pred: np.ndarray, mask: np.ndarray, bg_value: int
     return value
 
 
-def map_2018kdsb(pred: np.ndarray, mask: np.ndarray, bg_value: int = 0) -> float:
+def get_map_2018kdsb(pred: np.ndarray, mask: np.ndarray, bg_value: int = 0) -> float:
     """
     Mean Average Precision
     From now, it is suited to binary segmentation, where 0 is background and 1 is foreground
