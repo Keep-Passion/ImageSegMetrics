@@ -25,12 +25,12 @@ def get_total_evaluation(pred: np.ndarray, mask: np.ndarray) -> Tuple:
     """
     metric_values = [get_pixel_accuracy(pred, mask), get_mean_accuracy(pred, mask),
                      get_iou(pred, mask), get_fwiou(pred, mask), get_dice(pred, mask),
-                     get_figure_of_merit(pred, mask),
+                     get_figure_of_merit(pred, mask), get_completeness(pred, mask), get_correctness(pred, mask), get_quality(pred,mask),
                      get_ri(pred, mask), get_ari(pred, mask), get_vi(pred, mask),
                      get_cardinality_difference(pred, mask), get_map_2018kdsb(pred, mask)]
     metric_names  = ["pixel_accuracy", "mean_accuracy",
                      "iou", "fwiou", "dice",
-                     "figure_of_merit",
+                     "figure_of_merit", "completeness", "correctness", "quality",
                      "ri", "ari", "vi",
                      "cardinality_difference", "map"]
     return metric_values, metric_names
@@ -172,7 +172,71 @@ def get_dis_from_mask_point(mask: np.ndarray, index_x: int, index_y: int, bounda
                        axis=0))
     return min_distance
 
-  # Todo : 另外两个评估方法
+
+# completeness
+def get_completeness(pred: np.ndarray, mask: np.ndarray, theta: float = 2.0, boundary_value: int = 0) -> float:
+    """
+    Referenced by:
+    Beyond the Pixel-Wise Loss for Topology-Aware Delineation
+    """
+    num_pred = np.count_nonzero(pred == boundary_value)
+    num_mask = np.count_nonzero(mask == boundary_value)
+    temp_pred_mask = 0
+    for index_x in range(0, mask.shape[0]):
+        for index_y in range(0, mask.shape[1]):
+            if mask[index_x, index_y] == boundary_value:
+                distance = get_dis_from_mask_point(pred, index_x, index_y)
+                if distance < theta:
+                    temp_pred_mask += 1
+    f_score = float(temp_pred_mask) / float(num_mask)
+    return f_score
+
+
+# correctness
+def get_correctness(pred: np.ndarray, mask: np.ndarray, theta: float = 2.0, boundary_value: int = 0) -> float:
+    """
+    Referenced by:
+    Beyond the Pixel-Wise Loss for Topology-Aware Delineation
+    """
+    num_pred = np.count_nonzero(pred == boundary_value)
+    num_mask = np.count_nonzero(mask == boundary_value)
+    temp_mask_pred = 0
+    for index_x in range(0, pred.shape[0]):
+        for index_y in range(0, pred.shape[1]):
+            if pred[index_x, index_y] == boundary_value:
+                distance = get_dis_from_mask_point(mask, index_x, index_y)
+                if distance < theta:
+                    temp_mask_pred += 1
+    f_score = float(temp_mask_pred) / float(num_pred)
+    return f_score
+
+
+# quality
+def get_quality(pred: np.ndarray, mask: np.ndarray, theta: float = 2.0, boundary_value: int = 0) -> float:
+    """
+    Referenced by:
+    Beyond the Pixel-Wise Loss for Topology-Aware Delineation
+    """
+    num_pred = np.count_nonzero(pred == boundary_value)
+    num_mask = np.count_nonzero(mask == boundary_value)
+    temp_pred_mask = 0
+    for index_x in range(0, mask.shape[0]):
+        for index_y in range(0, mask.shape[1]):
+            if mask[index_x, index_y] == boundary_value:
+                distance = get_dis_from_mask_point(pred, index_x, index_y)
+                if distance < theta:
+                    temp_pred_mask += 1
+    temp_mask_pred = 0
+    for index_x in range(0, pred.shape[0]):
+        for index_y in range(0, pred.shape[1]):
+            if pred[index_x, index_y] == boundary_value:
+                distance = get_dis_from_mask_point(mask, index_x, index_y)
+                if distance < theta:
+                    temp_mask_pred += 1
+    f_score = float(temp_mask_pred) / float(num_pred - temp_pred_mask + num_mask)
+    return f_score
+
+
 
 # ************** 基于聚类的评估 Clustering based evaluation **************
 # Rand Index (RI), Adjusted Rand Index (ARI) and Variation of Information (VI)
