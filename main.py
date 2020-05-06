@@ -10,7 +10,7 @@ seg_names  = ["otsu"]
 
 cwd = os.getcwd()
 img_dir = os.path.join(cwd, "data", "images")
-label_dir = os.path.join(cwd, "data", "masks")
+mask_dir = os.path.join(cwd, "data", "masks")
 out_dir = os.path.join(cwd, "results")
 img_names = os.listdir(img_dir)
 
@@ -19,7 +19,7 @@ for seg_idx in range(len(seg_models)):
     for img_name in img_names:
         # Iterate all images
         img = load_img(os.path.join(img_dir, img_name))
-        mask = load_img(os.path.join(label_dir, img_name))
+        mask = load_img(os.path.join(mask_dir, img_name))
         pred = seg_models[seg_idx](img)
 
         io.imsave(os.path.join(out_dir, seg_names[seg_idx] + "_" + img_name), (pred * 255).astype(np.uint8))

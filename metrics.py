@@ -6,7 +6,7 @@ import gala.evaluate as ev
 from typing import Tuple
 
 # 我们将图像分割指标分成5个类别：
-# 不如：基于像素的，基于区域的，基于边缘的，基于聚类的 和 基于实例的
+# 比如：基于像素的，基于区域的，基于边缘的，基于聚类的 和 基于实例的
 # We grouped image segmentation metrics into five groups:
 # Such as pixel based, region based, boundary based, clustering based, instance based
 
@@ -25,12 +25,12 @@ def get_total_evaluation(pred: np.ndarray, mask: np.ndarray) -> Tuple:
     """
     metric_values = [get_pixel_accuracy(pred, mask), get_mean_accuracy(pred, mask),
                      get_iou(pred, mask), get_fwiou(pred, mask), get_dice(pred, mask),
-                     # get_figure_of_merit(pred, mask),
+                     get_figure_of_merit(pred, mask),
                      get_ri(pred, mask), get_ari(pred, mask), get_vi(pred, mask),
                      get_cardinality_difference(pred, mask), get_map_2018kdsb(pred, mask)]
     metric_names  = ["pixel_accuracy", "mean_accuracy",
                      "iou", "fwiou", "dice",
-                     # "figure_of_merit",
+                     "figure_of_merit",
                      "ri", "ari", "vi",
                      "cardinality_difference", "map"]
     return metric_values, metric_names
@@ -130,15 +130,14 @@ def get_figure_of_merit(pred: np.ndarray, mask: np.ndarray, boundary_value: int 
     Abdou I E, Pratt W K. Quantitative design and evaluation of enhancement thresholding edge detectors[J].
     Proceedings of the IEEE, 1979, 67(5): 753-763
     """
-    num_pred = np.count_nonzero(pred[pred == boundary_value])
-    num_mask = np.count_nonzero(mask[mask == boundary_value])
+    num_pred = np.count_nonzero(pred == boundary_value)
+    num_mask = np.count_nonzero(mask == boundary_value)
     num_max = num_pred if num_pred > num_mask else num_mask
     temp = 0.0
     for index_x in range(0, pred.shape[0]):
         for index_y in range(0, pred.shape[1]):
             if pred[index_x, index_y] == boundary_value:
-                distance = get_dis_from_mask_point(
-                    mask, index_x, index_y)
+                distance = get_dis_from_mask_point(mask, index_x, index_y)
                 temp = temp + 1 / (1 + const_index * pow(distance, 2))
     f_score = (1.0 / num_max) * temp
     return f_score
@@ -173,6 +172,7 @@ def get_dis_from_mask_point(mask: np.ndarray, index_x: int, index_y: int, bounda
                        axis=0))
     return min_distance
 
+  # Todo : 另外两个评估方法
 
 # ************** 基于聚类的评估 Clustering based evaluation **************
 # Rand Index (RI), Adjusted Rand Index (ARI) and Variation of Information (VI)
@@ -234,8 +234,9 @@ def get_cardinality_difference(pred: np.ndarray, mask: np.ndarray, bg_value: int
     Waggoner J , Zhou Y , Simmons J , et al. 3D Materials Image Segmentation by 2D Propagation: A Graph-Cut Approach Considering Homomorphism[J].
     IEEE Transactions on Image Processing, 2013, 22(12):5282-5293.
     """
-    label_mask, num_mask = label(mask, neighbors=4, background=bg_value, return_num=True)
-    label_pred, num_pred = label(pred, neighbors=4, background=bg_value, return_num=True)
+
+    label_mask, num_mask = label(mask, connectivity=1, background=bg_value, return_num=True)
+    label_pred, num_pred = label(pred, connectivity=1, background=bg_value, return_num=True)
     value = num_mask - num_pred
     return value
 
