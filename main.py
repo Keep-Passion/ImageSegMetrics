@@ -5,8 +5,8 @@ from utils import *
 from seg_methods import *
 from metrics import *
 
-seg_models = [OTSU]
-seg_names  = ["otsu"]
+seg_models = [OTSU,Canny,Watershed,Kmeans,RandomWalker]
+seg_names  = ["otsu","canny","watershed","k-means","random_walker"]
 
 cwd = os.getcwd()
 img_dir = os.path.join(cwd, "data", "images")
