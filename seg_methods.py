@@ -1,5 +1,12 @@
 import cv2
 import numpy as np
+from skimage.feature import canny
+from skimage.morphology import watershed
+from scipy import ndimage as ndi
+from skimage.feature import peak_local_max
+from skimage.segmentation import random_walker,active_contour
+from skimage.future import graph
+from skimage import segmentation
 # 所有能找到的 自动化 方法, 交互式方法列出来，需要交互，弹出交互框
 # 所有结果的像素值为[0,C]
 
