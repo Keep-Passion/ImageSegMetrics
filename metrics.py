@@ -45,10 +45,10 @@ def get_pixel_accuracy(pred: np.ndarray, mask: np.ndarray) -> float:
     Long J , Shelhamer E , Darrell T . Fully Convolutional Networks for Semantic Segmentation[J].
     IEEE Transactions on Pattern Analysis & Machine Intelligence, 2014, 39(4):640-651.
     """
-    class_num = np.amax(mask)
+    class_num = np.amax(mask) + 1
 
-    temp_n_ii = 0
-    temp_t_i = 0
+    temp_n_ii = 0.0
+    temp_t_i = 0.0
     for i_cl in range(class_num):
         temp_n_ii += np.count_nonzero(mask[pred == i_cl] == i_cl)
         temp_t_i  += np.count_nonzero(mask == i_cl)
@@ -63,8 +63,8 @@ def get_mean_accuracy(pred: np.ndarray, mask: np.ndarray) -> float:
     Long J , Shelhamer E , Darrell T . Fully Convolutional Networks for Semantic Segmentation[J].
     IEEE Transactions on Pattern Analysis & Machine Intelligence, 2014, 39(4):640-651.
     """
-    class_num = np.amax(mask)
-    temp = 0
+    class_num = np.amax(mask) + 1
+    temp = 0.0
     for i_cl in range(class_num):
         n_ii = np.count_nonzero(mask[pred == i_cl] == i_cl)
         t_i = np.count_nonzero(mask == i_cl)
@@ -81,9 +81,9 @@ def get_iou(pred: np.ndarray, mask: np.ndarray) -> float:
     Long J , Shelhamer E , Darrell T . Fully Convolutional Networks for Semantic Segmentation[J].
     IEEE Transactions on Pattern Analysis & Machine Intelligence, 2014, 39(4):640-651.
     """
-    class_num = np.amax(mask)
+    class_num = np.amax(mask) + 1
 
-    temp = 0
+    temp = 0.0
     for i_cl in range(class_num):
         n_ii = np.count_nonzero(mask[pred == i_cl] == i_cl)
         t_i = np.count_nonzero(mask == i_cl)
@@ -98,10 +98,10 @@ def get_fwiou(pred: np.ndarray, mask: np.ndarray) -> float:
     Long J , Shelhamer E , Darrell T . Fully Convolutional Networks for Semantic Segmentation[J].
     IEEE Transactions on Pattern Analysis & Machine Intelligence, 2014, 39(4):640-651.
     """
-    class_num = np.amax(mask)
+    class_num = np.amax(mask) + 1
 
-    temp_t_i = 0
-    temp_iou = 0
+    temp_t_i = 0.0
+    temp_iou = 0.0
     for i_cl in range(0, class_num):
         n_ii = np.count_nonzero(mask[pred == i_cl] == i_cl)
         t_i = np.count_nonzero(mask == i_cl)
