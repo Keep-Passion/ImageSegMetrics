@@ -23,17 +23,13 @@ def get_total_evaluation(pred: np.ndarray, mask: np.ndarray) -> Tuple:
          Get whole evaluation of all metrics
          Return Tuple, (value_list, name_list)
     """
+    gala = get_vi(pred, mask)
     metric_values = [get_pixel_accuracy(pred, mask), get_mean_accuracy(pred, mask),
                      get_iou(pred, mask), get_fwiou(pred, mask), get_dice(pred, mask),
                      get_figure_of_merit(pred, mask), get_completeness(pred, mask), get_correctness(pred, mask), get_quality(pred,mask),
-                     get_ri(pred, mask), get_ari(pred, mask), get_vi(pred, mask),
+                     get_ri(pred, mask), get_ari(pred, mask), gala[0], gala[1], gala[2],
                      get_cardinality_difference(pred, mask), get_map_2018kdsb(pred, mask)]
-    metric_names  = ["pixel_accuracy", "mean_accuracy",
-                     "iou", "fwiou", "dice",
-                     "figure_of_merit", "completeness", "correctness", "quality",
-                     "ri", "ari", "vi",
-                     "cardinality_difference", "map"]
-    return metric_values, metric_names
+    return metric_values
 
 
 # ************** 基于像素的评估 Pixel based evaluation **************
@@ -283,7 +279,7 @@ def get_vi(pred: np.ndarray, mask: np.ndarray, bg_value: int = 0, method: int = 
     vi = merger_error + split_error
     if math.isnan(vi):
         return 10, 5, 5
-    return vi, merger_error, split_error
+    return merger_error, split_error, vi
 
 
 # ************** 基于实例的评估 Instance based evaluation **************
@@ -302,7 +298,7 @@ def get_cardinality_difference(pred: np.ndarray, mask: np.ndarray, bg_value: int
     label_mask, num_mask = label(mask, connectivity=1, background=bg_value, return_num=True)
     label_pred, num_pred = label(pred, connectivity=1, background=bg_value, return_num=True)
     value = num_mask - num_pred
-    return value
+    return value * 1.0
 
 
 def get_map_2018kdsb(pred: np.ndarray, mask: np.ndarray, bg_value: int = 0) -> float:

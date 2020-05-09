@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from skimage import io
 
@@ -10,3 +11,11 @@ def load_img(img_path: str) -> np.ndarray:
     if np.amax(img) == 255 and len(np.unique(img)) == 2:
         img = img * 1.0 / 255
     return img.astype(np.uint8)
+
+
+def create_folder(path: str):
+    """
+        创建目录， create folder if there is no folder
+    """
+    if not os.path.exists(path):
+        os.mkdir(path)
