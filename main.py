@@ -13,8 +13,8 @@ metric_names = ["pixel_accuracy", "mean_accuracy",
                 "figure_of_merit", "completeness", "correctness", "quality",
                 "ri", "ari", "me", "se", "vi",
                 "cardinality_difference", "map"]
-seg_models = [OTSU, Canny, Watershed, Kmeans, RandomWalker]
-seg_names  = ["otsu", "canny", "watershed", "k-means", "random_walker"]
+seg_models = [OTSU, Canny, Watershed, Kmeans, RandomWalker, unet]
+seg_names  = ["otsu", "canny", "watershed", "k-means", "random_walker", "unet"]
 
 cwd = os.getcwd()
 img_dir = os.path.join(cwd, "data", "images")
@@ -22,6 +22,8 @@ mask_dir = os.path.join(cwd, "data", "masks")
 out_dir = os.path.join(cwd, "results")
 create_folder(out_dir)
 img_names = os.listdir(img_dir)
+if ".ipynb_checkpoints" in img_names:
+    img_names.remove(".ipynb_checkpoints")
 
 # We provide 14 metrics, +2 means that vi includes merge error and split error
 seg_total_eval = np.zeros((len(seg_names), len(metric_names), len(img_names)))
@@ -45,6 +47,7 @@ for model_idx in range(len(seg_models)):
         print("")
 
         # 可视化 Visualization
+        plt.figure(figsize=(15, 15))
         plt.subplot(1, 3, 1), plt.imshow(img, cmap="gray"), plt.title('img'), plt.axis("off")
         plt.subplot(1, 3, 2), plt.imshow(mask * 255, cmap="gray"), plt.title('mask'), plt.axis("off")
         plt.subplot(1, 3, 3), plt.imshow(pred * 255, cmap="gray"), plt.title(seg_names[model_idx]), plt.axis("off")

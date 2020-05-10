@@ -139,7 +139,7 @@ def get_figure_of_merit(pred: np.ndarray, mask: np.ndarray, boundary_value: int 
     return f_score
 
 
-def get_dis_from_mask_point(mask: np.ndarray, index_x: int, index_y: int, boundary_value: int = 0, neighbor_length: int = 60):
+def get_dis_from_mask_point(mask: np.ndarray, index_x: int, index_y: int, boundary_value: int = 0, neighbor_length: int = 40):
     """
     Calculation the distance between the boundary point(pred) and its nearest boundary point(mask)
     """
@@ -162,11 +162,13 @@ def get_dis_from_mask_point(mask: np.ndarray, index_x: int, index_y: int, bounda
         # Get the corrdinate of mask in neighbor region
         # becuase the corrdinate will be chaneged after slice operation, we add it manually
     x, y = np.where(mask[region_start_row: region_end_row, region_start_col: region_end_col] == boundary_value)
-
-    min_distance = np.amin(
-        np.linalg.norm(np.array([x + region_start_row, y + region_start_col]) - np.array([[index_x], [index_y]]),
-                       axis=0))
-    return min_distance
+    try:
+        min_distance = np.amin(
+            np.linalg.norm(np.array([x + region_start_row, y + region_start_col]) - np.array([[index_x], [index_y]]),
+                           axis=0))
+        return min_distance
+    except ValueError as e:
+        return neighbor_length
 
 
 # completeness

@@ -1,3 +1,5 @@
 .idea/
 __pycache__/
 results/
+model/unet_parameter.pth
+model/unet_parameter.zip
