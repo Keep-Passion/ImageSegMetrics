@@ -1,13 +1,11 @@
 import cv2
 import numpy as np
-from skimage.feature import canny
-from skimage.morphology import watershed
+from skimage.morphology import watershed, skeletonize
 from scipy import ndimage as ndi
-from skimage.feature import peak_local_max
-from skimage.segmentation import random_walker, active_contour
-from skimage.future import graph
-from skimage import segmentation
+from skimage.measure import label
+from skimage.segmentation import random_walker
 from model.net_inference import NetInference
+from skimage.filters import threshold_otsu
 
 
 # 所有结果的像素值为[0,C] all result is in integer of [0, C]
@@ -40,8 +38,7 @@ def RandomWalker(in_img: np.ndarray) -> np.ndarray:
     markers[in_img > 200] = 2
 
     out_img = random_walker(in_img, markers)
-    out_img = out_img / 2
-    out_img[out_img == 0.5] = 0
+    out_img = out_img - 1
     return out_img
 
 
@@ -69,15 +66,21 @@ def Kmeans(in_img: np.ndarray) -> np.ndarray:
 
 def Watershed(in_img: np.ndarray) -> np.ndarray:
     """
-    分水岭方法，watershed
+        分水岭方法，watershed
     """
-    markers = np.zeros(in_img.shape, dtype=np.uint)
-    markers[in_img < 200] = 1
-    markers[in_img > 200] = 2
-    out_img = watershed(in_img, markers)
-    m = np.max(out_img)
-    out_img = out_img / float(m)
-    out_img[out_img == 0.5] = 0
+    th_img = threshold_otsu(in_img)
+    temp_img = np.zeros(in_img.shape)
+    temp_img[in_img > th_img] = 1
+
+    dist_trf = ndi.distance_transform_edt(temp_img)
+
+    sure_fg = np.zeros(in_img.shape, bool)
+    sure_fg[dist_trf > 0.2 * dist_trf.max()] = True
+
+    label_map = label(sure_fg, connectivity=1, background=0, return_num=False)
+    out_img = watershed(in_img, label_map, watershed_line=True, mask=sure_fg)
+    out_img[out_img > 0] = 1
+    out_img = 1 - skeletonize(1 - out_img)
     return out_img
 
 

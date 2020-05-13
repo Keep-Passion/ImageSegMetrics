@@ -13,6 +13,7 @@ metric_names = ["pixel_accuracy", "mean_accuracy",
                 "figure_of_merit", "completeness", "correctness", "quality",
                 "ri", "ari", "me", "se", "vi",
                 "cardinality_difference", "map"]
+
 seg_models = [OTSU, Canny, Watershed, Kmeans, RandomWalker, unet]
 seg_names  = ["otsu", "canny", "watershed", "k-means", "random_walker", "unet"]
 

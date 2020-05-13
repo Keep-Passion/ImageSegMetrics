@@ -82,4 +82,6 @@ class NetInference():
         if torch.cuda.is_available():  # load gpu parameters for gpu
             self._model.load_state_dict(torch.load(self._pth_address))
         else:  # load gpu parameters for cpu
-            self._model.load_state_dict({k.replace('module.', ''): v for k, v in torch.load(self._pth_address).items()})
+            self._model.load_state_dict(
+                {k.replace('module.', ''): v for k, v in torch.load(self._pth_address, map_location='cpu').items()})
+            # self._model.load_state_dict({k.replace('module.', ''): v for k, v in torch.load(self._pth_address).items()})
