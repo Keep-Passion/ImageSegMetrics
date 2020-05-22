@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
-from skimage.morphology import watershed, skeletonize
+from skimage.morphology import skeletonize
 from scipy import ndimage as ndi
 from skimage.measure import label
-from skimage.segmentation import random_walker
+from skimage.segmentation import random_walker, watershed
 from model.net_inference import NetInference
 from skimage.filters import threshold_otsu
 

@@ -6,7 +6,7 @@ import gala.evaluate as ev
 from typing import Tuple
 
 # 我们将图像分割指标分成5个类别：
-# 比如：基于像素的，基于区域的，基于边缘的，基于聚类的 和 基于实例的
+# 比如：基于像素的，基于类内重合度的，基于边缘的，基于聚类的 和 基于实例的
 # We grouped image segmentation metrics into five groups:
 # Such as pixel based, region based, boundary based, clustering based, instance based
 
@@ -18,17 +18,23 @@ from typing import Tuple
 # class of segmentation
 
 
-def get_total_evaluation(pred: np.ndarray, mask: np.ndarray) -> Tuple:
+def get_total_evaluation(pred: np.ndarray, mask: np.ndarray, require_edge:bool=True) -> Tuple:
     """
          Get whole evaluation of all metrics
          Return Tuple, (value_list, name_list)
     """
     gala = get_vi(pred, mask)
-    metric_values = [get_pixel_accuracy(pred, mask), get_mean_accuracy(pred, mask),
-                     get_iou(pred, mask), get_fwiou(pred, mask), get_dice(pred, mask),
-                     get_figure_of_merit(pred, mask), get_completeness(pred, mask), get_correctness(pred, mask), get_quality(pred,mask),
-                     get_ri(pred, mask), get_ari(pred, mask), gala[0], gala[1], gala[2],
-                     get_cardinality_difference(pred, mask), get_map_2018kdsb(pred, mask)]
+    if require_edge:
+        metric_values = [get_pixel_accuracy(pred, mask), get_mean_accuracy(pred, mask),
+                         get_iou(pred, mask), get_fwiou(pred, mask), get_dice(pred, mask),
+                         get_figure_of_merit(pred, mask), get_completeness(pred, mask), get_correctness(pred, mask), get_quality(pred,mask),
+                         get_ri(pred, mask), get_ari(pred, mask), gala[0], gala[1], gala[2],
+                         get_cardinality_difference(pred, mask), get_map_2018kdsb(pred, mask)]
+    else:
+        metric_values = [get_pixel_accuracy(pred, mask), get_mean_accuracy(pred, mask),
+                         get_iou(pred, mask), get_fwiou(pred, mask), get_dice(pred, mask),
+                         get_ri(pred, mask), get_ari(pred, mask), gala[0], gala[1], gala[2],
+                         get_cardinality_difference(pred, mask), get_map_2018kdsb(pred, mask)]
     return metric_values
 
 
@@ -69,7 +75,7 @@ def get_mean_accuracy(pred: np.ndarray, mask: np.ndarray) -> float:
     return value
 
 
-# ************** 基于区域的评估 Region based evaluation **************
+# ************** 基于类内重合度的评估 Region based evaluation **************
 # Mean IOU (mIOU), Frequency weighted IOU(FwIOU), Dice score
 def get_iou(pred: np.ndarray, mask: np.ndarray) -> float:
     """
@@ -139,7 +145,7 @@ def get_figure_of_merit(pred: np.ndarray, mask: np.ndarray, boundary_value: int 
     return f_score
 
 
-def get_dis_from_mask_point(mask: np.ndarray, index_x: int, index_y: int, boundary_value: int = 0, neighbor_length: int = 40):
+def get_dis_from_mask_point(mask: np.ndarray, index_x: int, index_y: int, boundary_value: int = 0, neighbor_length: int = 20):
     """
     Calculation the distance between the boundary point(pred) and its nearest boundary point(mask)
     """

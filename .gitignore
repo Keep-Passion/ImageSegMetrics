@@ -1,5 +1,6 @@
 .idea/
 __pycache__/
 results/
-model/unet_parameter.pth
-model/unet_parameter.zip
+model/unet_al_la_parameter.pth
+model/unet_iron_parameter.pth
+model/unet_iron_parameter.zip

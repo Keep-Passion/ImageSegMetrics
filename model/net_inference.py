@@ -22,8 +22,8 @@ class NetInference():
     """
 
     def __init__(self, mean: float = 0.9410404628082503, std: float = 0.12481161024777744,
-                 model=UNet, pth_address: str = os.path.join(os.getcwd(), "model", "unet_parameter.pth"),
-                 use_post_process: bool = True):
+                 model=UNet, pth_address: str = None,
+                 use_post_process: bool = False):
 
         self._mean = mean
         self._std = std
@@ -75,13 +75,37 @@ class NetInference():
         # Add this depend on the user's decision
         return out_img
 
+    def _set_pth_address(self, pth_address: str):
+        """
+        Set pth address and load it
+        """
+        self._pth_address = pth_address
+        self._load_pth()
+        if "iron" in pth_address:
+            self._set_mean_and_std(mean=0.9410404628082503, std=0.12481161024777744)
+        else:
+            self._set_mean_and_std(mean=0.5275053008263852, std=0.21730661894972672)
+
+    def _set_mean_and_std(self, mean: float, std: float):
+        """
+        Set mean and std
+        """
+        self._mean = mean
+        self._std = std
+        self._z_score_norm = tr.Compose([
+            tr.ToTensor(),
+            tr.Normalize(mean=[self._mean],
+                         std=[self._std])
+        ])
+
     def _load_pth(self):
         """
         Load model parameters
         """
-        if torch.cuda.is_available():  # load gpu parameters for gpu
-            self._model.load_state_dict(torch.load(self._pth_address))
-        else:  # load gpu parameters for cpu
-            self._model.load_state_dict(
-                {k.replace('module.', ''): v for k, v in torch.load(self._pth_address, map_location='cpu').items()})
-            # self._model.load_state_dict({k.replace('module.', ''): v for k, v in torch.load(self._pth_address).items()})
+        if self._pth_address is not None:
+            if torch.cuda.is_available():  # load gpu parameters for gpu
+                self._model.load_state_dict(torch.load(self._pth_address))
+            else:  # load gpu parameters for cpu
+                self._model.load_state_dict(
+                    {k.replace('module.', ''): v for k, v in torch.load(self._pth_address).items()})
+
