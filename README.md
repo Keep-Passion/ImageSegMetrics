@@ -11,7 +11,11 @@ Besides, you can install all packages by using:
     pip install -r requirements.txt
 
 ## Citation
-Still in submission
+MA Bo-yuan, JIANG Shu-fang, YIN Dou, SHEN Hao-kai, BAN Xiao-juan, HUANG Hai-you, WANG Hao, XUE Wei-hua, FENG Hua. Image segmentation metric and its application in the analysis of microscopic image[J]. Chinese Journal of Engineering, 2021, 43(1): 137-149. doi: 10.13374/j.issn2095-9389.2020.05.28.002
+
+or
+
+马博渊, 姜淑芳, 尹豆, 申昊锴, 班晓娟, 黄海友, 王浩, 薛维华, 封华. 图像分割评估方法在显微图像分析中的应用[J]. 工程科学学报, 2021, 43(1): 137-149. doi: 10.13374/j.issn2095-9389.2020.05.28.002
 
 ## Acknowledgement
 The authors acknowledge the financial support from the National Key Research and Development Program of China (No. 2016YFB0700500).
